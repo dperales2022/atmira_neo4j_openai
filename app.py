@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel as PydanticBaseModel
 import os
 from dotenv import load_dotenv
 import json
@@ -50,10 +50,14 @@ NEO4J_USER = os.environ["NEO4J_USERNAME"]
 NEO4J_PASSWORD = os.environ["NEO4J_PASSWORD"]
 NEO4J_DATABASE = "neo4j"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-EMBEDDING_MODEL = "text-embedding-3-small"
-GENERATION_MODEL = "gpt-4-0125-preview"
-TABLE_REF_SUFFIX = '_table_ref'
-TABLE_ID_SUFFIX  = '_table'
+
+graph = Neo4jGraph(
+    url=NEO4J_URL,
+    username=NEO4J_USER,
+    password=NEO4J_PASSWORD
+)     
+
+llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
 
 class Property(BaseModel):
   """A single property consisting of key and value"""
@@ -175,26 +179,18 @@ def download_pdf(url):
         return tmp_file.name  # Return the file path of the downloaded PDF
 
 # Pydantic model for receiving PDF file path and customer_id
-class ProcessRequest(BaseModel):
+class ProcessRequest(PydanticBaseModel):
     pdf_file_path: str
-    customer_id: str
-    customer_name: str
 
 @app.post("/process-pdf/")
 async def process_pdf(request: ProcessRequest):
     try:
-        graph = Neo4jGraph(
-            url=NEO4J_URL,
-            username=NEO4J_USER,
-            password=NEO4J_PASSWORD
-        )       
-        
-        llm = ChatOpenAI(model="gpt-3.5-turbo-16k", temperature=0)
-
         # Load and parse PDF
-        pdf_file_path = download_pdf(request.pdf_file_path)
+        pdf_doc = download_pdf(request.pdf_file_path)
+        loader = PyPDFLoader(pdf_doc)
+        raw_documents = loader.load()
         text_splitter = TokenTextSplitter(chunk_size=2048, chunk_overlap=24)
-        documents = text_splitter.split_documents(pdf_file_path)
+        documents = text_splitter.split_documents(raw_documents)
 
         for i, d in tqdm(enumerate(documents), total=len(documents)):
             extract_and_store_graph(d)
