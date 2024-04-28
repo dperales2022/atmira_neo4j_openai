@@ -7,3 +7,4 @@ nest_asyncio
 pydantic
 langchain-community
 langchain
+langchain_openai
