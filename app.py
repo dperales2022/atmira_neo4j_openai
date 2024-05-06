@@ -151,7 +151,7 @@ Adhere to the rules strictly. Non-compliance will result in termination.
             ("human", "Use the given format to extract information from the following input: {input}"),
             ("human", "Tip: Make sure to answer in the correct format"),
         ])
-    return  create_structured_output_runnable(KnowledgeGraph, llm, prompt, verbose=False)
+    return  create_structured_output_runnable(KnowledgeGraph, llm, prompt)
 
 def extract_and_store_graph(
     document: Document,
