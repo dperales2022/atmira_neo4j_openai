@@ -18,7 +18,7 @@ from typing import List, Dict, Any, Optional
 from langchain.pydantic_v1 import Field, BaseModel
 from langchain.chains.openai_functions import (
     create_openai_fn_chain,
-     create_structured_output_runnable,
+     create_structured_output_chain,
 )
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -151,7 +151,7 @@ Adhere to the rules strictly. Non-compliance will result in termination.
             ("human", "Use the given format to extract information from the following input: {input}"),
             ("human", "Tip: Make sure to answer in the correct format"),
         ])
-    return  create_structured_output_runnable(KnowledgeGraph, llm, prompt)
+    return  create_structured_output_chain(KnowledgeGraph, llm, prompt, verbose=False))
 
 def extract_and_store_graph(
     document: Document,
