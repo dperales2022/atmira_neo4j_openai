@@ -49,8 +49,7 @@ NEO4J_URL = os.environ["NEO4J_URI"]
 NEO4J_USER = os.environ["NEO4J_USERNAME"]
 NEO4J_PASSWORD = os.environ["NEO4J_PASSWORD"]
 NEO4J_DATABASE = "neo4j"
-# OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-OPENAI_API_KEY = os.environ("OPENAI_API_KEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 graph = Neo4jGraph(
     url=NEO4J_URL,
